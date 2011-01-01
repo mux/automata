@@ -30,8 +30,8 @@ unit :: State -> IntDFA a
 unit q0 = IntDFA q0 IM.empty IS.empty
 
 trans :: Ord a => Transition a -> IntDFA a -> IntDFA a
-trans (q,x,q') (IntDFA q0 ts fs) = IntDFA q0 (insert ts) fs
-  where insert = IM.insertWith M.union q (M.singleton x q')
+trans (q,i,q') (IntDFA q0 ts fs) = IntDFA q0 (insert ts) fs
+  where insert = IM.insertWith M.union q (M.singleton i q')
 
 final :: Ord a => State -> IntDFA a -> IntDFA a
 final q (IntDFA q0 ts fs) = IntDFA q0 ts (IS.insert q fs)
