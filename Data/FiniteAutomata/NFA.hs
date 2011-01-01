@@ -44,21 +44,24 @@ states (NFA q0 ts fs) = S.unions [S.singleton q0, states' ts, fs]
 size :: (Ord a, Ord s) => NFA s a -> Int
 size = S.size . states
 
-step1 :: (Ord a, Ord s) => NFA s a -> Input a -> s -> Set s
-step1 (NFA _ ts _) i = maybe S.empty next . (`M.lookup` ts)
+stepi1 :: (Ord a, Ord s) => NFA s a -> Input a -> s -> Set s
+stepi1 (NFA _ ts _) i = maybe S.empty next . (`M.lookup` ts)
   where next = fromMaybe S.empty . M.lookup i
 
-step :: (Ord a, Ord s) => NFA s a -> Input a -> Set s -> Set s
-step nfa i = foldMap (step1 nfa i)
+stepi :: (Ord a, Ord s) => NFA s a -> Input a -> Set s -> Set s
+stepi nfa i = foldMap (stepi1 nfa i)
+
+step :: (Ord a, Ord s) => NFA s a -> a -> Set s -> Set s
+step nfa x = go . eclosure nfa
+  where go qs = stepi nfa (Symbol x) qs `S.union` stepi nfa Any qs
 
 accept :: (Ord a, Ord s) => NFA s a -> [a] -> Bool
 accept nfa@(NFA q0 _ fs) = go (S.singleton q0)
-  where go  qs    = go' (eclosure nfa qs)
-        go' qs [] = not . S.null $ qs `S.intersection` fs
-        go' qs (x:xs)
+  where go qs [] = not . S.null $ qs `S.intersection` fs
+        go qs (x:xs)
           | S.null next = False
           | otherwise   = go next xs
-          where next = step nfa (Symbol x) qs `S.union` step nfa Any qs
+          where next = step nfa x qs
 
 -- Compute the epsilon-closure of a set of states.
 eclosure :: (Ord a, Ord s) => NFA s a -> Set s -> Set s
@@ -66,7 +69,7 @@ eclosure nfa qs = go qs qs
   where go todo eqs
           | S.null todo = eqs
           | otherwise   = go (next `S.difference` eqs)  (eqs `S.union` next)
-          where next = step nfa Epsilon todo
+          where next = stepi nfa Epsilon todo
 
 -- Convert the NFA into a DFA using the powerset-construction algorithm.
 determinize :: (Ord a, Ord s) => NFA s a -> DFA (Set s) a
