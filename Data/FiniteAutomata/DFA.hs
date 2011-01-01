@@ -1,5 +1,6 @@
 module Data.FiniteAutomata.DFA where
 
+import Control.Applicative
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Set (Set)
@@ -12,8 +13,14 @@ import qualified Data.Set as S
 -- The DFA is entirely defined by the transitions within the states,
 -- along with a set a final states.
 
-type Transition s a  = (s, a, s)	-- One single transition
-type Transitions s a = Map a s		-- Outgoing transitions of a state
+-- 'Default' moves are not part of the theory, but they arise naturally
+-- when converting from NFAs with 'Any' moves.
+data Input a = Symbol a
+             | Default
+  deriving (Eq,Ord,Show)
+
+type Transition s a  = (s, Input a, s)	-- One single transition
+type Transitions s a = Map (Input a) s	-- Outgoing transitions of a state
 
 data DFA s a =
   DFA { start       :: s			-- Initial state
@@ -26,8 +33,8 @@ unit :: s -> DFA s a
 unit q0 = DFA q0 M.empty S.empty
 
 trans :: (Ord a, Ord s) => Transition s a -> DFA s a -> DFA s a
-trans (q,x,q') (DFA q0 ts fs) = DFA q0 (insert ts) fs
-  where insert = M.insertWith M.union q (M.singleton x q')
+trans (q,i,q') (DFA q0 ts fs) = DFA q0 (insert ts) fs
+  where insert = M.insertWith M.union q (M.singleton i q')
 
 final :: (Ord a, Ord s) => s -> DFA s a -> DFA s a
 final q (DFA q0 ts fs) = DFA q0 ts (S.insert q fs)
@@ -41,7 +48,8 @@ size :: (Ord a, Ord s) => DFA s a -> Int
 size = S.size . states
 
 step :: (Ord a, Ord s) => DFA s a -> a -> s -> Maybe s
-step (DFA _ ts _) x q = M.lookup q ts >>= M.lookup x
+step (DFA _ ts _) x q = M.lookup q ts >>= \qts ->
+                          M.lookup (Symbol x) qts <|> M.lookup Default qts
 
 accept :: (Ord a, Ord s) => DFA s a -> [a] -> Bool
 accept d@(DFA q0 _ fs) = go q0

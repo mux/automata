@@ -12,11 +12,11 @@ import qualified Data.FiniteAutomata.DFA as D
 
 data Input a = Symbol a
              | Epsilon
-             | Any
+             | Any		-- Not part of the theory, but convenient
   deriving (Eq,Ord,Show)
 
-type Transitions s a = Map (Input a) (Set s)
 type Transition s a  = (s, Input a, s)
+type Transitions s a = Map (Input a) (Set s)
 
 data NFA s a =
   NFA { start       :: s
@@ -29,9 +29,9 @@ unit :: s -> NFA s a
 unit q0 = NFA q0 M.empty S.empty
 
 trans :: (Ord a, Ord s) => Transition s a -> NFA s a -> NFA s a
-trans (q,x,q') (NFA q0 ts fs) = NFA q0 (insert ts) fs
+trans (q,i,q') (NFA q0 ts fs) = NFA q0 (insert ts) fs
   where insert = M.insertWith (M.unionWith S.union) q
-                              (M.singleton x (S.singleton q'))
+                              (M.singleton i (S.singleton q'))
 
 final :: (Ord a, Ord s) => s -> NFA s a -> NFA s a
 final q (NFA q0 ts fs) = NFA q0 ts (S.insert q fs)
@@ -68,8 +68,6 @@ eclosure nfa qs = go qs qs
           | otherwise   = go (next `S.difference` eqs)  (eqs `S.union` next)
           where next = step nfa Epsilon todo
 
--- XXX Doesn't support Any moves.
---
 -- Convert the NFA into a DFA using the powerset-construction algorithm.
 determinize :: (Ord a, Ord s) => NFA s a -> DFA (Set s) a
 determinize nfa@(NFA q0 ts fs) = go (S.singleton dfaq0) S.empty (D.unit dfaq0)
@@ -83,18 +81,22 @@ determinize nfa@(NFA q0 ts fs) = go (S.singleton dfaq0) S.empty (D.unit dfaq0)
        done'         = S.insert q done
        -- Analyze a DFA state (set of states): merge all the transitions and
        -- check if any of the state is final in the NFA, in one pass.
-       (tss, qfinal) = S.fold analyze (M.empty, False) q
+       (qts, qfinal) = S.fold analyze (M.empty, False) q
         where
-         analyze q' (qts,f) = (merge q' qts, f || q' `S.member` fs)
+         analyze q' (qts',f) = (merge q' qts', f || q' `S.member` fs)
           where
             merge = M.unionWith S.union . fromMaybe M.empty . (`M.lookup` ts)
 
        -- Create transitions in the DFA corresponding to the merged
        -- transitions and add next states to handle in the todo set.
-       (dfa', todo'') = M.foldrWithKey add (dfa, todo') $ tss
+       (dfa', todo'') = M.foldrWithKey add (dfa, todo') .
+                        M.map (`S.union` anyqs) $ qts
+       anyqs          = fromMaybe S.empty $ M.lookup Any qts
 
-       add (Symbol x) qs (dfa, todo) =
-         (D.trans (q, x, qs') dfa,
-          todo `S.union` (S.singleton qs' `S.difference` done'))
-         where qs' = eclosure nfa qs
-       add _          _  (dfa, todo) = (dfa, todo) -- XXX Any
+       add i qs (dfa, todo) = (add' i qs' dfa, todo')
+         where qs'   = eclosure nfa qs
+               todo' = todo `S.union` (S.singleton qs' `S.difference` done')
+
+       add' (Symbol x) qs = D.trans (q, D.Symbol x, qs)
+       add' Any        qs = D.trans (q, D.Default, qs)
+       add' _          _  = id
