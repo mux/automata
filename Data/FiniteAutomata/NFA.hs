@@ -92,14 +92,13 @@ determinize nfa@(NFA q0 ts fs) = go (S.singleton dfaq0) S.empty (D.unit dfaq0)
 
        -- Create transitions in the DFA corresponding to the merged
        -- transitions and add next states to handle in the todo set.
-       (dfa', todo'') = M.foldrWithKey add (dfa, todo') .
-                        M.map (`S.union` anyqs) $ qts
+       (dfa', todo'') = M.foldrWithKey add (dfa, todo') $ qts
        anyqs          = fromMaybe S.empty $ M.lookup Any qts
 
        add i qs (dfa, todo) = (add' i qs' dfa, todo')
          where qs'   = eclosure nfa qs
                todo' = todo `S.union` (S.singleton qs' `S.difference` done')
 
-       add' (Symbol x) qs = D.trans (q, D.Symbol x, qs)
+       add' (Symbol x) qs = D.trans (q, D.Symbol x, qs `S.union` anyqs)
        add' Any        qs = D.trans (q, D.Default, qs)
        add' _          _  = id
