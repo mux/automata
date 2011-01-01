@@ -1,0 +1,26 @@
+Name:		fsa
+Version:	0.0.1
+License-File:	LICENSE
+License:	BSD3
+Author:		Maxime Henrion
+Copyright:	2010, Maxime Henrion
+Maintainer:	Maxime Henrion <mhenrion@gmail.com>
+Bug-Reports:	http://bitbucket.org/mumux/fsa/issues/
+Category:	?
+Synopsis:	Finite-State Automaton
+Description:
+Build-Type:	Simple
+Cabal-Version:	>= 1.6
+Tested-with:	GHC ==7.0.1
+
+Source-Repository head
+  Type:			mercurial
+  Location:		http://bitbucket.org/mumux/fsa/
+
+Library
+  Build-Depends:	base >= 3 && < 5, containers
+  Exposed-Modules:	Data.FiniteAutomata.DFA
+                        Data.FiniteAutomata.IntDFA
+                        Data.FiniteAutomata.TiedDFA
+                        Data.FiniteAutomata.NFA
+  GHC-Options:		-Wall -O2 -funbox-strict-fields
