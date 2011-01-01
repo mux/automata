@@ -1,31 +1,38 @@
-import NFA
+import Data.FiniteAutomata.DFA (DFA)
+import qualified Data.FiniteAutomata.DFA as DFA
+import Data.FiniteAutomata.IntDFA (IntDFA)
+import qualified Data.FiniteAutomata.IntDFA as IDFA
+import Data.FiniteAutomata.TiedDFA (TiedDFA)
+import qualified Data.FiniteAutomata.TiedDFA as TDFA
+import Data.FiniteAutomata.NFA (NFA, Input(..))
+import qualified Data.FiniteAutomata.NFA as NFA
 
 -- Test DFAs that match 1*(0(1*)0(1*))*
 dfa :: DFA Int Char
-dfa = trans (2,'0',1) . trans (2,'1',2) .
-      trans (1,'0',2) . trans (1,'1',1) .
-      final 1 $ unit 1
+dfa = DFA.trans (2,'0',1) . DFA.trans (2,'1',2) .
+      DFA.trans (1,'0',2) . DFA.trans (1,'1',1) .
+      DFA.final 1 $ DFA.unit 1
 
-dfa :: IntDFA Char
-dfa = trans (2,'0',1) . trans (2,'1',2) .
-      trans (1,'0',2) . trans (1,'1',1) .
-      final 1 $ unit 1
+dfa2 :: IntDFA Char
+dfa2 = IDFA.trans (2,'0',1) . IDFA.trans (2,'1',2) .
+       IDFA.trans (1,'0',2) . IDFA.trans (1,'1',1) .
+       IDFA.final 1 $ IDFA.unit 1
 
-dfa :: TiedDFA Char
-dfa = s1
-  where s1 = trans '0' s2 . trans '1' s1 $ unit True
-        s2 = trans '0' s1 . trans '1' s2 $ unit False
+dfa3 :: TiedDFA Char
+dfa3 = s1
+  where s1 = TDFA.trans '0' s2 . TDFA.trans '1' s1 $ TDFA.unit True
+        s2 = TDFA.trans '0' s1 . TDFA.trans '1' s2 $ TDFA.unit False
 
 -- Test NFA, matches (1*(01*01*)*) U (0*(10*10*)*)
 -- Meaning, matches strings (containing only zeros and ones)
 -- if the number of ones is even, or the number of zeros is.
 nfa :: NFA Int Char
-nfa = trans (1, Symbol '1', 1) . trans (1, Symbol '0', 2) .
-      trans (2, Symbol '1', 2) . trans (2, Symbol '0', 1) .
-      trans (3, Symbol '0', 3) . trans (3, Symbol '1', 4) .
-      trans (4, Symbol '0', 4) . trans (4, Symbol '1', 3) .
-      trans (0, Epsilon, 1) . trans (0, Epsilon, 3) .
-      final 1 . final 3 $ unit 0
+nfa = NFA.trans (1, Symbol '1', 1) . NFA.trans (1, Symbol '0', 2) .
+      NFA.trans (2, Symbol '1', 2) . NFA.trans (2, Symbol '0', 1) .
+      NFA.trans (3, Symbol '0', 3) . NFA.trans (3, Symbol '1', 4) .
+      NFA.trans (4, Symbol '0', 4) . NFA.trans (4, Symbol '1', 3) .
+      NFA.trans (0, Epsilon, 1) . NFA.trans (0, Epsilon, 3) .
+      NFA.final 1 . NFA.final 3 $ NFA.unit 0
 
 main :: IO ()
-main = print $ determinize nfa
+main = print $ NFA.determinize nfa
