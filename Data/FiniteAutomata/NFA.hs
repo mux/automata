@@ -95,9 +95,9 @@ determinize nfa@(NFA q0 ts fs) = go (S.singleton dfaq0) S.empty (D.unit dfaq0)
        (dfa', todo'') = M.foldrWithKey add (dfa, todo') $ qts
        anyqs          = fromMaybe S.empty $ M.lookup Any qts
 
-       add i qs (dfa, todo) = (add' i qs' dfa, todo')
-         where qs'   = eclosure nfa qs
-               todo' = todo `S.union` (S.singleton qs' `S.difference` done')
+       add i qs (dfa, next) = (add' i qs' dfa, next')
+         where next' = next `S.union` (S.singleton qs' `S.difference` done')
+               qs'   = eclosure nfa qs
 
        add' (Symbol x) qs = D.trans (q, D.Symbol x, qs `S.union` anyqs)
        add' Any        qs = D.trans (q, D.Default, qs)
