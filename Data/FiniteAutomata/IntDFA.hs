@@ -1,5 +1,6 @@
 module Data.FiniteAutomata.IntDFA where
 
+import Control.Applicative
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.IntMap (IntMap)
@@ -12,8 +13,12 @@ import qualified Data.IntSet as IS
 
 type State = Int
 
-type Transition a  = (State, a, State)
-type Transitions a = Map a State
+data Input a = Symbol a
+             | Default
+  deriving (Eq,Ord,Show)
+
+type Transition a  = (State, Input a, State)
+type Transitions a = Map (Input a) State
 
 data IntDFA a =
   IntDFA { start       :: State
@@ -40,7 +45,8 @@ size :: Ord a => IntDFA a -> Int
 size = IS.size . states
 
 step :: Ord a => IntDFA a -> a -> State -> Maybe State
-step (IntDFA _ ts _) x q = IM.lookup q ts >>= M.lookup x
+step (IntDFA _ ts _) x q = IM.lookup q ts >>= \qts ->
+                             M.lookup (Symbol x) qts <|> M.lookup Default qts
 
 accept :: Ord a => IntDFA a -> [a] -> Bool
 accept d@(IntDFA q0 _ fs) = go q0

@@ -14,8 +14,8 @@ dfa = DFA.trans (2,DFA.Symbol '0',1) . DFA.trans (2,DFA.Symbol '1',2) .
       DFA.final 1 $ DFA.unit 1
 
 dfa2 :: IntDFA Char
-dfa2 = IDFA.trans (2,'0',1) . IDFA.trans (2,'1',2) .
-       IDFA.trans (1,'0',2) . IDFA.trans (1,'1',1) .
+dfa2 = IDFA.trans (2,IDFA.Symbol '0',1) . IDFA.trans (2,IDFA.Symbol '1',2) .
+       IDFA.trans (1,IDFA.Symbol '0',2) . IDFA.trans (1,IDFA.Symbol '1',1) .
        IDFA.final 1 $ IDFA.unit 1
 
 dfa3 :: TiedDFA Char
