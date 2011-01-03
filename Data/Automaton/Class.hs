@@ -27,16 +27,12 @@ class AcceptFA fa a where
   step    :: fa a -> a -> StateType fa a -> Maybe (StateType fa a)
   final   :: fa a -> StateType fa a -> Bool
 
-  --with :: fa a -> a -> StateType fa a -> b -> (StateType fa a -> b) -> b
-
 instance (Ord a, Ord s) => AcceptFA (DFA s) a where
   type StateType (DFA s) a = s
 
   initial     = DFA.start
   step        = DFA.step
   final fa q  = q `S.member` DFA.finals fa
-
-  --with fa x q y f = maybe y f (DFA.step fa x q)
 
 instance Ord a => AcceptFA IntDFA a where
   type StateType IntDFA a = IDFA.State	-- Int
@@ -57,6 +53,8 @@ instance (Ord a, Ord s) => AcceptFA (NFA s) a where
 
   initial     = S.singleton . NFA.start
   step fa x   = wrap . NFA.step fa x
+    -- This probably adds some overhead, but NFAs are not intended to
+    -- be run directly anyways, and should be converted to DFAs first.
     where wrap qs = if S.null qs then Nothing else Just qs
   final fa qs = not . S.null $ qs `S.union` NFA.finals fa
 
