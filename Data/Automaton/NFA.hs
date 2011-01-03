@@ -87,8 +87,7 @@ determinize nfa@(NFA q0 ts fs) = go (S.singleton dfaq0) S.empty (D.unit dfaq0)
        (qts, qfinal) = S.fold analyze (M.empty, False) q
         where
          analyze q' (qts',f) = (merge q' qts', f || q' `S.member` fs)
-          where
-            merge = M.unionWith S.union . fromMaybe M.empty . (`M.lookup` ts)
+         merge = M.unionWith S.union . fromMaybe M.empty . (`M.lookup` ts)
 
        -- Create transitions in the DFA corresponding to the merged
        -- transitions and add next states to handle in the todo set.
