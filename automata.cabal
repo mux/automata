@@ -1,30 +1,30 @@
-Name:		automata
-Version:	0.0.1
-License-File:	LICENSE
-License:	BSD3
-Author:		Maxime Henrion
-Copyright:	2010, Maxime Henrion
-Maintainer:	Maxime Henrion <mhenrion@gmail.com>
-Bug-Reports:	http://bitbucket.org/mumux/automata/issues/
-Category:	?
-Synopsis:	Finite-State Automaton
+Name:               automata
+Version:            0.0.1
+License-File:       LICENSE
+License:            BSD3
+Author:             Maxime Henrion
+Copyright:          2010, Maxime Henrion
+Maintainer:         Maxime Henrion <mhenrion@gmail.com>
+Bug-Reports:        http://bitbucket.org/mumux/automata/issues/
+Category:           Data, Text
+Synopsis:           A purely functional Finite-State Automaton library
 Description:
-Build-Type:	Simple
-Cabal-Version:	>= 1.6
-Tested-with:	GHC ==7.0.1
+Build-Type:         Simple
+Cabal-Version:      >= 1.6
+Tested-with:        GHC ==7.0.1
 
 Source-Repository head
-  Type:			mercurial
-  Location:		http://bitbucket.org/mumux/automata/
+  Type:             mercurial
+  Location:         http://bitbucket.org/mumux/automata/
 
 Library
-  Build-Depends:	base >= 3 && < 5, containers
-  Exposed-Modules:	Data.Automaton.Class
-                        Data.Automaton.DFA
-                        Data.Automaton.IntDFA
-                        Data.Automaton.TiedDFA
-                        Data.Automaton.NFA
-                        Data.Automaton.Levenshtein
-  Extensions:		FlexibleInstances, MultiParamTypeClasses,
-                        TypeFamilies, TypeOperators
-  GHC-Options:		-Wall -O2 -funbox-strict-fields
+  Build-Depends:    base >= 3 && < 5, containers
+  Exposed-Modules:  Data.Automaton.Class
+                    Data.Automaton.DFA
+                    Data.Automaton.IntDFA
+                    Data.Automaton.TiedDFA
+                    Data.Automaton.NFA
+                    Data.Automaton.Levenshtein
+  Extensions:       FlexibleInstances, MultiParamTypeClasses,
+                    TypeFamilies, TypeOperators
+  GHC-Options:      -Wall -O2 -funbox-strict-fields
