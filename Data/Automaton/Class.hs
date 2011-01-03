@@ -18,14 +18,14 @@ import qualified Data.IntSet as IS
 
 -- The typeclass takes two parameters so that I can constrain
 -- the type 'a' to be an instance of 'Ord'.
-class AcceptFA fa a where
+class AcceptFA f a where
   -- The state type is parameterized over both 'fa' and 'a' to
   -- accomodate the recursive representation of tied DFAs.
-  type StateType fa a :: *
+  type StateType f a :: *
 
-  initial :: fa a -> StateType fa a
-  step    :: fa a -> a -> StateType fa a -> Maybe (StateType fa a)
-  final   :: fa a -> StateType fa a -> Bool
+  initial :: f a -> StateType f a
+  step    :: f a -> a -> StateType f a -> Maybe (StateType f a)
+  final   :: f a -> StateType f a -> Bool
 
 instance (Ord a, Ord s) => AcceptFA (DFA s) a where
   type StateType (DFA s) a = s
@@ -58,37 +58,37 @@ instance (Ord a, Ord s) => AcceptFA (NFA s) a where
     where wrap qs = if S.null qs then Nothing else Just qs
   final fa qs = not . S.null $ qs `S.union` NFA.finals fa
 
-data IntersectFA x y a = x a :/\: y a
+data IntersectFA f g a = f a :/\: g a
 
-instance (AcceptFA x a, AcceptFA y a) => AcceptFA (IntersectFA x y) a where
-  type StateType (IntersectFA x y) a = (StateType x a, StateType y a)
+instance (AcceptFA f a, AcceptFA g a) => AcceptFA (IntersectFA f g) a where
+  type StateType (IntersectFA f g) a = (StateType f a, StateType g a)
 
-  initial (x :/\: y)        = (initial x, initial y)
-  step (x :/\: y) i (q1,q2) = (,) <$> step x i q1 <*> step y i q2
-  final (x :/\: y) (q1,q2)  = final x q1 && final y q2
+  initial (f :/\: g)        = (initial f, initial g)
+  step (f :/\: g) x (q1,q2) = (,) <$> step f x q1 <*> step g x q2
+  final (f :/\: g) (q1,q2)  = final f q1 && final g q2
 
-data UnionFA x y a = x a :\/: y a
+data UnionFA f g a = f a :\/: g a
 
-instance (AcceptFA x a, AcceptFA y a) => AcceptFA (UnionFA x y) a where
-  type StateType (UnionFA x y) a =
-    (Maybe (StateType x a), Maybe (StateType y a))
+instance (AcceptFA f a, AcceptFA g a) => AcceptFA (UnionFA f g) a where
+  type StateType (UnionFA f g) a =
+    (Maybe (StateType f a), Maybe (StateType g a))
 
-  initial (x :\/: y) = (Just (initial x), Just (initial y))
-  step (x :\/: y) i (q1,q2)
+  initial (f :\/: g) = (Just (initial f), Just (initial g))
+  step (f :\/: g) x (q1,q2)
     | isJust q1' || isJust q2' = Just (q1',q2')
     | otherwise                = Nothing
-    where q1' = q1 >>= step x i
-          q2' = q2 >>= step y i
-  final (x :\/: y) (q1,q2) = maybe False (final x) q1 ||
-                             maybe False (final y) q2
+    where q1' = q1 >>= step f x
+          q2' = q2 >>= step g x
+  final (f :\/: g) (q1,q2) = maybe False (final f) q1 ||
+                             maybe False (final g) q2
 
-accept :: AcceptFA fa a => fa a -> [a] -> Bool
-accept fa = go (initial fa)
-  where go q []     = final fa q
-        go q (x:xs) = maybe False (`go` xs) (step fa x q)
+accept :: AcceptFA f a => f a -> [a] -> Bool
+accept f = go (initial f)
+  where go q []     = final f q
+        go q (x:xs) = maybe False (`go` xs) (step f x q)
 
-intersect :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> IntersectFA x y a
+intersect :: (AcceptFA f a, AcceptFA g a) => f a -> g a -> IntersectFA f g a
 intersect = (:/\:)
 
-union :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> UnionFA x y a
+union :: (AcceptFA f a, AcceptFA g a) => f a -> g a -> UnionFA f g a
 union = (:\/:)
