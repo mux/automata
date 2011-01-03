@@ -19,8 +19,10 @@ Source-Repository head
 
 Library
   Build-Depends:	base >= 3 && < 5, containers
-  Exposed-Modules:	Data.Automaton.DFA
+  Exposed-Modules:	Data.Automaton.Class
+                        Data.Automaton.DFA
                         Data.Automaton.IntDFA
                         Data.Automaton.TiedDFA
                         Data.Automaton.NFA
+                        Data.Automaton.Levenshtein
   GHC-Options:		-Wall -O2 -funbox-strict-fields
