@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies, TypeOperators, GADTs #-}
+{-# LANGUAGE TypeFamilies, TypeOperators #-}
 module Data.Automaton.Class where
 
 import Control.Applicative
@@ -58,20 +58,18 @@ instance (Ord a, Ord s) => AcceptFA (NFA s) a where
     where wrap qs = if S.null qs then Nothing else Just qs
   final fa qs = not . S.null $ qs `S.union` NFA.finals fa
 
-data IntersectFA x y a where
-  (:/\:) :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> IntersectFA x y a
+data IntersectFA x y a = x a :/\: y a
 
-instance AcceptFA (IntersectFA x y) a where
+instance (AcceptFA x a, AcceptFA y a) => AcceptFA (IntersectFA x y) a where
   type StateType (IntersectFA x y) a = (StateType x a, StateType y a)
 
   initial (x :/\: y)        = (initial x, initial y)
   step (x :/\: y) i (q1,q2) = (,) <$> step x i q1 <*> step y i q2
   final (x :/\: y) (q1,q2)  = final x q1 && final y q2
 
-data UnionFA x y a where
-  (:\/:) :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> UnionFA x y a
+data UnionFA x y a = x a :\/: y a
 
-instance AcceptFA (UnionFA x y) a where
+instance (AcceptFA x a, AcceptFA y a) => AcceptFA (UnionFA x y) a where
   type StateType (UnionFA x y) a =
     (Maybe (StateType x a), Maybe (StateType y a))
 
