@@ -3,6 +3,7 @@
 module Data.Automaton.Class where
 
 import Control.Applicative
+import Data.Maybe
 import Data.Automaton.DFA (DFA)
 import qualified Data.Automaton.DFA as DFA
 import Data.Automaton.IntDFA (IntDFA)
@@ -69,6 +70,22 @@ instance AcceptFA (IntersectFA x y) a where
   step (x :/\: y) i (q1,q2) = (,) <$> step x i q1 <*> step y i q2
   final (x :/\: y) (q1,q2)  = final x q1 && final y q2
 
+data UnionFA x y a where
+  (:\/:) :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> UnionFA x y a
+
+instance AcceptFA (UnionFA x y) a where
+  type StateType (UnionFA x y) a =
+    (Maybe (StateType x a), Maybe (StateType y a))
+
+  initial (x :\/: y) = (Just (initial x), Just (initial y))
+  step (x :\/: y) i (q1,q2)
+    | isJust q1' || isJust q2' = Just (q1',q2')
+    | otherwise                = Nothing
+    where q1' = q1 >>= step x i
+          q2' = q2 >>= step y i
+  final (x :\/: y) (q1,q2) = maybe False (final x) q1 ||
+                             maybe False (final y) q2
+
 accept :: AcceptFA fa a => fa a -> [a] -> Bool
 accept fa = go (initial fa)
   where go q []     = final fa q
@@ -76,3 +93,6 @@ accept fa = go (initial fa)
 
 intersect :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> IntersectFA x y a
 intersect = (:/\:)
+
+union :: (AcceptFA x a, AcceptFA y a) => x a -> y a -> UnionFA x y a
+union = (:\/:)
