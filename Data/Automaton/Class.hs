@@ -1,14 +1,14 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeFamilies #-}
-module Data.FiniteAutomata.Class where
+module Data.Automaton.Class where
 
-import Data.FiniteAutomata.DFA (DFA)
-import qualified Data.FiniteAutomata.DFA as DFA
-import Data.FiniteAutomata.IntDFA (IntDFA)
-import qualified Data.FiniteAutomata.IntDFA as IDFA
-import Data.FiniteAutomata.TiedDFA (TiedDFA)
-import qualified Data.FiniteAutomata.TiedDFA as TDFA
-import Data.FiniteAutomata.NFA (NFA)
-import qualified Data.FiniteAutomata.NFA as NFA
+import Data.Automaton.DFA (DFA)
+import qualified Data.Automaton.DFA as DFA
+import Data.Automaton.IntDFA (IntDFA)
+import qualified Data.Automaton.IntDFA as IDFA
+import Data.Automaton.TiedDFA (TiedDFA)
+import qualified Data.Automaton.TiedDFA as TDFA
+import Data.Automaton.NFA (NFA)
+import qualified Data.Automaton.NFA as NFA
 import Data.Set (Set)
 import qualified Data.Set as S
 import qualified Data.IntSet as IS

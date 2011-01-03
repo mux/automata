@@ -1,6 +1,6 @@
-module Data.FiniteAutomata.Levenshtein where
+module Data.Automaton.Levenshtein where
 
-import Data.FiniteAutomata.NFA
+import Data.Automaton.NFA
 
 -- Probably only useful for strings, but I kept a type
 -- allowing arbitrary 'Ord a' inputs anyway.

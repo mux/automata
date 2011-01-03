@@ -1,11 +1,11 @@
-Name:		fsa
+Name:		automata
 Version:	0.0.1
 License-File:	LICENSE
 License:	BSD3
 Author:		Maxime Henrion
 Copyright:	2010, Maxime Henrion
 Maintainer:	Maxime Henrion <mhenrion@gmail.com>
-Bug-Reports:	http://bitbucket.org/mumux/fsa/issues/
+Bug-Reports:	http://bitbucket.org/mumux/automata/issues/
 Category:	?
 Synopsis:	Finite-State Automaton
 Description:
@@ -15,12 +15,12 @@ Tested-with:	GHC ==7.0.1
 
 Source-Repository head
   Type:			mercurial
-  Location:		http://bitbucket.org/mumux/fsa/
+  Location:		http://bitbucket.org/mumux/automata/
 
 Library
   Build-Depends:	base >= 3 && < 5, containers
-  Exposed-Modules:	Data.FiniteAutomata.DFA
-                        Data.FiniteAutomata.IntDFA
-                        Data.FiniteAutomata.TiedDFA
-                        Data.FiniteAutomata.NFA
+  Exposed-Modules:	Data.Automaton.DFA
+                        Data.Automaton.IntDFA
+                        Data.Automaton.TiedDFA
+                        Data.Automaton.NFA
   GHC-Options:		-Wall -O2 -funbox-strict-fields

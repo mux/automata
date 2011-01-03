@@ -1,4 +1,4 @@
-module Data.FiniteAutomata.TiedDFA where
+module Data.Automaton.TiedDFA where
 
 import Data.Map (Map)
 import qualified Data.Map as M

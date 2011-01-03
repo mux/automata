@@ -1,4 +1,4 @@
-module Data.FiniteAutomata.NFA where
+module Data.Automaton.NFA where
 
 import Data.Foldable
 import Data.Maybe
@@ -7,8 +7,8 @@ import qualified Data.Map as M
 import Data.Set (Set)
 import qualified Data.Set as S
 
-import Data.FiniteAutomata.DFA (DFA)
-import qualified Data.FiniteAutomata.DFA as D
+import Data.Automaton.DFA (DFA)
+import qualified Data.Automaton.DFA as D
 
 data Input a = Symbol a
              | Epsilon

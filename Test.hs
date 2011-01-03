@@ -1,11 +1,11 @@
-import Data.FiniteAutomata.DFA (DFA)
-import qualified Data.FiniteAutomata.DFA as DFA
-import Data.FiniteAutomata.IntDFA (IntDFA)
-import qualified Data.FiniteAutomata.IntDFA as IDFA
-import Data.FiniteAutomata.TiedDFA (TiedDFA)
-import qualified Data.FiniteAutomata.TiedDFA as TDFA
-import Data.FiniteAutomata.NFA (NFA, Input(..))
-import qualified Data.FiniteAutomata.NFA as NFA
+import Data.Automaton.DFA (DFA)
+import qualified Data.Automaton.DFA as DFA
+import Data.Automaton.IntDFA (IntDFA)
+import qualified Data.Automaton.IntDFA as IDFA
+import Data.Automaton.TiedDFA (TiedDFA)
+import qualified Data.Automaton.TiedDFA as TDFA
+import Data.Automaton.NFA (NFA, Input(..))
+import qualified Data.Automaton.NFA as NFA
 
 -- Test DFAs that match 1*(0(1*)0(1*))*
 dfa :: DFA Int Char

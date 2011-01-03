@@ -1,4 +1,4 @@
-module Data.FiniteAutomata.IntDFA where
+module Data.Automaton.IntDFA where
 
 import Control.Applicative
 import Data.Map (Map)
