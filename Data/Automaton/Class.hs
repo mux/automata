@@ -3,7 +3,6 @@
 module Data.Automaton.Class where
 
 import Control.Applicative
-import Data.Maybe
 import Data.Automaton.DFA (DFA)
 import qualified Data.Automaton.DFA as DFA
 import Data.Automaton.IntDFA (IntDFA)
@@ -86,8 +85,8 @@ instance (AcceptFA f a, AcceptFA g a) => AcceptFA (UnionFA f g) a where
           go Nothing   (Just r2) = Just (Second r2)
           go (Just r1) (Just r2) = Just (Both r1 r2)
 
-  final (f :\/: g) (First q1)    = final f q1
-  final (f :\/: g) (Second q2)   = final g q2
+  final (f :\/: _) (First q1)    = final f q1
+  final (_ :\/: g) (Second q2)   = final g q2
   final (f :\/: g) (Both q1 q2)  = final f q1 || final g q2
 
 accept :: AcceptFA f a => f a -> [a] -> Bool
