@@ -47,10 +47,13 @@ instance (AcceptFA f a, AcceptFA g a) => AcceptFA (UnionFA f g) a where
   final (_ :\/: g) (Second q2)   = final g q2
   final (f :\/: g) (Both q1 q2)  = final f q1 || final g q2
 
+run :: AcceptFA f a => f a -> [a] -> (StateType f a, [a])
+run f = go (initial f)
+  where go q []         = (q, [])
+        go q xxs@(x:xs) = maybe (q, xxs) (`go` xs) (step f x q)
+
 accept :: AcceptFA f a => f a -> [a] -> Bool
-accept f = go (initial f)
-  where go q []     = final f q
-        go q (x:xs) = maybe False (`go` xs) (step f x q)
+accept f = final f . fst . run f
 
 intersect :: (AcceptFA f a, AcceptFA g a) => f a -> g a -> IntersectFA f g a
 intersect = (:/\:)
