@@ -22,6 +22,7 @@ Library
   Exposed-Modules:  Data.Automaton.Class
                     Data.Automaton.DFA
                     Data.Automaton.IntDFA
+                    Data.Automaton.FunDFA
                     Data.Automaton.TiedDFA
                     Data.Automaton.NFA
                     Data.Automaton.Levenshtein
