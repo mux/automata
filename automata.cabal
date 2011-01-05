@@ -3,7 +3,7 @@ Version:            0.0.1
 License-File:       LICENSE
 License:            BSD3
 Author:             Maxime Henrion
-Copyright:          2010, Maxime Henrion
+Copyright:          2010-2011, Maxime Henrion
 Maintainer:         Maxime Henrion <mhenrion@gmail.com>
 Bug-Reports:        http://bitbucket.org/mumux/automata/issues/
 Category:           Data, Text
