@@ -3,17 +3,6 @@
 module Data.Automaton.Class where
 
 import Control.Applicative
-import Data.Automaton.DFA (DFA)
-import qualified Data.Automaton.DFA as DFA
-import Data.Automaton.IntDFA (IntDFA)
-import qualified Data.Automaton.IntDFA as IDFA
-import Data.Automaton.TiedDFA (TiedDFA)
-import qualified Data.Automaton.TiedDFA as TDFA
-import Data.Automaton.NFA (NFA)
-import qualified Data.Automaton.NFA as NFA
-import Data.Set (Set)
-import qualified Data.Set as S
-import qualified Data.IntSet as IS
 
 -- The typeclass takes two parameters so that I can constrain
 -- the type 'a' to be an instance of 'Ord'.
@@ -25,37 +14,6 @@ class AcceptFA f a where
   initial :: f a -> StateType f a
   step    :: f a -> a -> StateType f a -> Maybe (StateType f a)
   final   :: f a -> StateType f a -> Bool
-
-instance (Ord a, Ord s) => AcceptFA (DFA s) a where
-  type StateType (DFA s) a = s
-
-  initial    = DFA.start
-  step       = DFA.step
-  final fa q = q `S.member` DFA.finals fa
-
-instance Ord a => AcceptFA IntDFA a where
-  type StateType IntDFA a = IDFA.State	-- Int
-
-  initial    = IDFA.start
-  step       = IDFA.step
-  final fa q = q `IS.member` IDFA.finals fa
-
-instance Ord a => AcceptFA TiedDFA a where
-  type StateType TiedDFA a = TiedDFA a
-
-  initial   = id
-  step _    = TDFA.step
-  final _ q = TDFA.final q
-
-instance (Ord a, Ord s) => AcceptFA (NFA s) a where
-  type StateType (NFA s) a = Set s
-
-  initial     = S.singleton . NFA.start
-  step fa x   = wrap . NFA.step fa x
-    -- This probably adds some overhead, but NFAs are not intended to
-    -- be run directly anyways, and should be converted to DFAs first.
-    where wrap qs = if S.null qs then Nothing else Just qs
-  final fa qs = not . S.null $ qs `S.union` NFA.finals fa
 
 data IntersectFA f g a = f a :/\: g a
 

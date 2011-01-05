@@ -1,5 +1,6 @@
 module Data.Automaton.NFA where
 
+import Data.Automaton.Class
 import Data.Foldable
 import Data.Maybe
 import Data.Map (Map)
@@ -23,6 +24,17 @@ data NFA s a =
       , transitions :: Map s (Transitions s a)
       , finals      :: Set s
       } deriving Show
+
+instance (Ord a, Ord s) => AcceptFA (NFA s) a where
+  type StateType (NFA s) a = Set s
+
+  initial    = S.singleton . start
+  step f x   = wrap . go . eclosure f
+    -- This probably adds some overhead, but NFAs are not intended to
+    -- be run directly anyways, and should be converted to DFAs first.
+    where wrap qs = if S.null qs then Nothing else Just qs
+          go qs   = stepi f (Symbol x) qs `S.union` stepi f Any qs
+  final f qs = not . S.null $ qs `S.intersection` finals f
 
 -- A minimal NFA containing a single non-accepting initial state q0.
 unit :: s -> NFA s a
@@ -50,18 +62,6 @@ stepi1 (NFA _ ts _) i = maybe S.empty next . (`M.lookup` ts)
 
 stepi :: (Ord a, Ord s) => NFA s a -> Input a -> Set s -> Set s
 stepi nfa i = foldMap (stepi1 nfa i)
-
-step :: (Ord a, Ord s) => NFA s a -> a -> Set s -> Set s
-step nfa x = go . eclosure nfa
-  where go qs = stepi nfa (Symbol x) qs `S.union` stepi nfa Any qs
-
-accept :: (Ord a, Ord s) => NFA s a -> [a] -> Bool
-accept nfa@(NFA q0 _ fs) = go (S.singleton q0)
-  where go qs [] = not . S.null $ qs `S.intersection` fs
-        go qs (x:xs)
-          | S.null next = False
-          | otherwise   = go next xs
-          where next = step nfa x qs
 
 -- Compute the epsilon-closure of a set of states.
 eclosure :: (Ord a, Ord s) => NFA s a -> Set s -> Set s

@@ -1,5 +1,6 @@
 module Data.Automaton.TiedDFA where
 
+import Data.Automaton.Class
 import Data.Map (Map)
 import qualified Data.Map as M
 
@@ -10,9 +11,15 @@ import qualified Data.Map as M
 --
 
 data TiedDFA a =
-  TiedDFA { transitions :: Map a (TiedDFA a)	-- Transitions to other states
-          , final       :: !Bool		-- Is this state final?
-          }
+  TiedDFA (Map a (TiedDFA a))	-- Transitions to other states
+          !Bool			-- Is this state final?
+
+instance Ord a => AcceptFA TiedDFA a where
+  type StateType TiedDFA a = TiedDFA a
+
+  initial                = id
+  step  (TiedDFA ts _) x = const $ M.lookup x ts
+  final (TiedDFA _ f)    = const f
 
 -- DFA construction
 unit :: Bool -> TiedDFA a
@@ -20,12 +27,3 @@ unit = TiedDFA M.empty
 
 trans :: Ord a => a -> TiedDFA a -> TiedDFA a -> TiedDFA a
 trans x d' (TiedDFA ts f) = TiedDFA (M.insert x d' ts) f
-
--- Running a DFA
-accept :: Ord a => TiedDFA a -> [a] -> Bool
-accept dfa []     = final dfa
-accept dfa (x:xs) = maybe False (`accept` xs) (step x dfa)
-
--- One step
-step :: Ord a => a -> TiedDFA a -> Maybe (TiedDFA a)
-step x = M.lookup x . transitions

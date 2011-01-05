@@ -1,6 +1,7 @@
 module Data.Automaton.IntDFA where
 
 import Control.Applicative
+import Data.Automaton.Class
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.IntMap (IntMap)
@@ -26,6 +27,14 @@ data IntDFA a =
          , finals      :: IntSet
          } deriving Show
 
+instance Ord a => AcceptFA IntDFA a where
+  type StateType IntDFA a = State
+
+  initial    = start
+  step f x q = IM.lookup q (transitions f) >>= \qts ->
+                 M.lookup (Symbol x) qts <|> M.lookup Default qts
+  final f q  = q `IS.member` finals f
+
 unit :: State -> IntDFA a
 unit q0 = IntDFA q0 IM.empty IS.empty
 
@@ -43,12 +52,3 @@ states (IntDFA q0 ts fs) = IS.unions [IS.singleton q0, states' ts, fs]
 
 size :: Ord a => IntDFA a -> Int
 size = IS.size . states
-
-step :: Ord a => IntDFA a -> a -> State -> Maybe State
-step (IntDFA _ ts _) x q = IM.lookup q ts >>= \qts ->
-                             M.lookup (Symbol x) qts <|> M.lookup Default qts
-
-accept :: Ord a => IntDFA a -> [a] -> Bool
-accept d@(IntDFA q0 _ fs) = go q0
-  where go q []     = q `IS.member` fs
-        go q (x:xs) = maybe False (`go` xs) (step d x q)

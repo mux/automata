@@ -1,6 +1,7 @@
 module Data.Automaton.DFA where
 
 import Control.Applicative
+import Data.Automaton.Class
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Set (Set)
@@ -28,6 +29,15 @@ data DFA s a =
       , finals      :: Set s			-- Accepting states
       } deriving Show
 
+instance (Ord a, Ord s) => AcceptFA (DFA s) a where
+  type StateType (DFA s) a = s
+
+  initial    = start
+  step f x q = M.lookup q (transitions f) >>= \qts ->
+                 M.lookup (Symbol x) qts <|> M.lookup Default qts
+
+  final f q = q `S.member` finals f
+
 -- A minimal DFA containing a single non-accepting initial state q0.
 unit :: s -> DFA s a
 unit q0 = DFA q0 M.empty S.empty
@@ -46,12 +56,3 @@ states (DFA q0 ts fs) = S.unions [S.singleton q0, states' ts, fs]
 
 size :: (Ord a, Ord s) => DFA s a -> Int
 size = S.size . states
-
-step :: (Ord a, Ord s) => DFA s a -> a -> s -> Maybe s
-step (DFA _ ts _) x q = M.lookup q ts >>= \qts ->
-                          M.lookup (Symbol x) qts <|> M.lookup Default qts
-
-accept :: (Ord a, Ord s) => DFA s a -> [a] -> Bool
-accept d@(DFA q0 _ fs) = go q0
-  where go q []     = q `S.member` fs
-        go q (x:xs) = maybe False (`go` xs) (step d x q)
