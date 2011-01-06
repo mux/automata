@@ -1,37 +1,37 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies, TypeOperators #-}
 module Data.Automaton.Class where
 
 import Control.Applicative
 
--- The typeclass takes two parameters so that I can constrain
--- the type 'a' to be an instance of 'Ord'.
-class AcceptFA f a where
-  -- The state type is parameterized over both 'fa' and 'a' to
-  -- accomodate the recursive representation of tied DFAs.
-  type StateType f a :: *
+class AcceptFA f where
+  type StateType f :: *
+  type InputType f :: *
 
-  initial :: f a -> StateType f a
-  step    :: f a -> a -> StateType f a -> Maybe (StateType f a)
-  final   :: f a -> StateType f a -> Bool
+  initial :: f -> StateType f
+  step    :: f -> InputType f -> StateType f -> Maybe (StateType f)
+  final   :: f -> StateType f -> Bool
+  
+data IntersectFA f g a = f :/\: g
 
-data IntersectFA f g a = f a :/\: g a
-
-instance (AcceptFA f a, AcceptFA g a) => AcceptFA (IntersectFA f g) a where
-  type StateType (IntersectFA f g) a = (StateType f a, StateType g a)
+instance (AcceptFA f, AcceptFA g, InputType f ~ InputType g) =>
+         AcceptFA (IntersectFA f g a) where
+  type StateType (IntersectFA f g a) = (StateType f, StateType g)
+  type InputType (IntersectFA f g a) = InputType f
 
   initial (f :/\: g)        = (initial f, initial g)
   step (f :/\: g) x (q1,q2) = (,) <$> step f x q1 <*> step g x q2
   final (f :/\: g) (q1,q2)  = final f q1 && final g q2
 
-data UnionFA f g a = f a :\/: g a
+data UnionFA f g a = f :\/: g
 
 data OneOrBoth a b = First a
                    | Second b
                    | Both a b
 
-instance (AcceptFA f a, AcceptFA g a) => AcceptFA (UnionFA f g) a where
-  type StateType (UnionFA f g) a = OneOrBoth (StateType f a) (StateType g a)
+instance (AcceptFA f, AcceptFA g, InputType f ~ InputType g) =>
+         AcceptFA (UnionFA f g a) where
+  type StateType (UnionFA f g a) = OneOrBoth (StateType f) (StateType g)
+  type InputType (UnionFA f g a) = InputType f
 
   initial (f :\/: g) = Both (initial f) (initial g)
 
@@ -47,16 +47,18 @@ instance (AcceptFA f a, AcceptFA g a) => AcceptFA (UnionFA f g) a where
   final (_ :\/: g) (Second q2)   = final g q2
   final (f :\/: g) (Both q1 q2)  = final f q1 || final g q2
 
-run :: AcceptFA f a => f a -> [a] -> (StateType f a, [a])
+run :: AcceptFA f => f -> [InputType f] -> (StateType f, [InputType f])
 run f = go (initial f)
   where go q []         = (q, [])
         go q xxs@(x:xs) = maybe (q, xxs) (`go` xs) (step f x q)
 
-accept :: AcceptFA f a => f a -> [a] -> Bool
+accept :: AcceptFA f => f -> [InputType f] -> Bool
 accept f = final f . fst . run f
 
-intersect :: (AcceptFA f a, AcceptFA g a) => f a -> g a -> IntersectFA f g a
+intersect :: (AcceptFA f, AcceptFA g, InputType f ~ InputType g) =>
+             f -> g -> IntersectFA f g (InputType f)
 intersect = (:/\:)
 
-union :: (AcceptFA f a, AcceptFA g a) => f a -> g a -> UnionFA f g a
+union :: (AcceptFA f, AcceptFA g, InputType f ~ InputType g) =>
+         f -> g -> UnionFA f g (InputType f)
 union = (:\/:)

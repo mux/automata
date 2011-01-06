@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Data.Automaton.DFA where
 
 import Control.Applicative
@@ -29,14 +30,14 @@ data DFA s a =
       , finals      :: Set s			-- Accepting states
       } deriving Show
 
-instance (Ord a, Ord s) => AcceptFA (DFA s) a where
-  type StateType (DFA s) a = s
+instance (Ord a, Ord s) => AcceptFA (DFA s a) where
+  type StateType (DFA s a) = s
+  type InputType (DFA s a) = a
 
   initial    = start
   step f x q = M.lookup q (transitions f) >>= \qts ->
                  M.lookup (Symbol x) qts <|> M.lookup Default qts
-
-  final f q = q `S.member` finals f
+  final f q  = q `S.member` finals f
 
 -- A minimal DFA containing a single non-accepting initial state q0.
 unit :: s -> DFA s a

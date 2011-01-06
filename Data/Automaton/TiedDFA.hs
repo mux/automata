@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Data.Automaton.TiedDFA where
 
 import Data.Automaton.Class
@@ -14,8 +15,9 @@ data TiedDFA a =
   TiedDFA (Map a (TiedDFA a))	-- Transitions to other states
           !Bool			-- Is this state final?
 
-instance Ord a => AcceptFA TiedDFA a where
-  type StateType TiedDFA a = TiedDFA a
+instance Ord a => AcceptFA (TiedDFA a) where
+  type StateType (TiedDFA a) = TiedDFA a
+  type InputType (TiedDFA a) = a
 
   initial                = id
   step  (TiedDFA ts _) x = const $ M.lookup x ts

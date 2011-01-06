@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Data.Automaton.NFA where
 
 import Data.Automaton.Class
@@ -25,8 +26,9 @@ data NFA s a =
       , finals      :: Set s
       } deriving Show
 
-instance (Ord a, Ord s) => AcceptFA (NFA s) a where
-  type StateType (NFA s) a = Set s
+instance (Ord a, Ord s) => AcceptFA (NFA s a) where
+  type StateType (NFA s a) = Set s
+  type InputType (NFA s a) = a
 
   initial    = S.singleton . start
   step f x   = wrap . go . eclosure f

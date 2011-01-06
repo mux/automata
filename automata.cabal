@@ -26,6 +26,5 @@ Library
                     Data.Automaton.TiedDFA
                     Data.Automaton.NFA
                     Data.Automaton.Levenshtein
-  Extensions:       FlexibleInstances, MultiParamTypeClasses,
-                    TypeFamilies, TypeOperators
+  Extensions:       TypeFamilies, TypeOperators
   GHC-Options:      -Wall -O2 -funbox-strict-fields

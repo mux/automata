@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Data.Automaton.IntDFA where
 
 import Control.Applicative
@@ -27,8 +28,9 @@ data IntDFA a =
          , finals      :: IntSet
          } deriving Show
 
-instance Ord a => AcceptFA IntDFA a where
-  type StateType IntDFA a = State
+instance Ord a => AcceptFA (IntDFA a) where
+  type StateType (IntDFA a) = State
+  type InputType (IntDFA a) = a
 
   initial    = start
   step f x q = IM.lookup q (transitions f) >>= \qts ->
