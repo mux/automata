@@ -5,7 +5,7 @@ License:            BSD3
 Author:             Maxime Henrion
 Copyright:          2010-2011, Maxime Henrion
 Maintainer:         Maxime Henrion <mhenrion@gmail.com>
-Bug-Reports:        http://bitbucket.org/mumux/automata/issues/
+Bug-Reports:        http://bitbucket.org/mux/automata/issues/
 Category:           Data, Text
 Synopsis:           A purely functional Finite-State Automaton library
 Description:
@@ -15,7 +15,7 @@ Tested-with:        GHC ==7.0.1
 
 Source-Repository head
   Type:             mercurial
-  Location:         http://bitbucket.org/mumux/automata/
+  Location:         http://bitbucket.org/mux/automata/
 
 Library
   Build-Depends:    base >= 3 && < 5, containers
